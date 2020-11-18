@@ -1,20 +1,22 @@
-rm(list=ls())
+# rm(list=ls())
 
 library(dlnm)
 library(tsModel)
 library(splines)
 library(qcc)
-#library(psych)
 library(MASS)
 library(dplyr)
 library(data.table)
 library(ggplot2)
 library(tidyr)
 library(openxlsx)
-
+library(ggsci)
 
 ###### 数据 ######
-load("air_confirm_3.rda")
+load("Data/air_confirm.rda")
+
+dat_fit_all <- data.frame()
+
 city1 <- "深圳"
 df <- subset(data,data["城市"] == city1)
 city2 <- '温州'
@@ -32,19 +34,39 @@ lagknots <- logknots(14,df=3)
 cb1.var1 <- crossbasis(df[,var1],lag=14, argvar=list(df=2), arglag=list(knots=lagknots))
 cb2.var1 <- crossbasis(df2[,var1],lag=14, argvar=list(df=3), arglag=list(knots=lagknots))
 
-model1 <- glm(df[,dvar]+1~ cb1.var1 + ns(df[,"风速"],3) + 
+model1 <- glm(df[,dvar]~ cb1.var1 + ns(df[,"风速"],3) + 
                 ns(df[,'相对湿度.百分比'],3) + ns(df[,'PM2.5',3]) + 
                 ns(df[,'CO',3]) + ns(df[,'NO2',3]) + 
                 ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
 
 model2 <- glm(df2[,dvar]~ cb2.var1 + ns(df2[,"风速"],3) + 
                 ns(df2[,'相对湿度.百分比'],3) + ns(df2[,'PM2.5',3]) + 
                 ns(df2[,'CO',3]) + ns(df2[,'NO2',3]) + 
                 ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
 
 ### 改动部分
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[5], at=c(qvar[1],qvar[2], 
@@ -165,6 +187,8 @@ dat_plot %>%
 
 #ggsave(plot = last_plot(), filename = 'tempscale.png')
 
+
+
 ### "风速"
 var1 <- "风速"
 qvar1 <- quantile(df[, var1], c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9))
@@ -180,7 +204,18 @@ model1 <- glm(df[,dvar]~ cb1.var1+ns(df[,"平均温度"],3) +
                 ns(df[,'CO',3])
               + ns(df[,'NO2',3]) + ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[2], cumul=TRUE)
 
 model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) + 
@@ -188,7 +223,18 @@ model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) +
                 ns(df2[,'CO',3])
               + ns(df2[,'NO2',3]) + ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
 ### 改动部分
@@ -324,7 +370,18 @@ model1 <- glm(df[,dvar] ~ cb1.var1+ns(df[,"平均温度"],3) +
                 ns(df[,'CO',3])
               + ns(df[,'NO2',3]) + ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[2], cumul=TRUE)
 
 model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) + 
@@ -332,7 +389,18 @@ model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) +
                 ns(df2[,'CO',3])
               + ns(df2[,'NO2',3]) + ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
 ### 改动部分
@@ -411,7 +479,18 @@ model1 <- glm(df[,dvar] ~ cb1.var1+ns(df[,"平均温度"],3) +
                 ns(df[,'PM2.5',3])
               + ns(df[,'NO2',3]) + ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[2], cumul=TRUE)
 
 model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) + 
@@ -419,7 +498,18 @@ model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) +
                 ns(df2[,'PM2.5',3])
               + ns(df2[,'NO2',3]) + ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
 ### 改动部分
@@ -539,7 +629,18 @@ model1 <- glm(df[,dvar] ~ cb1.var1+ns(df[,"平均温度"],3) +
                 ns(df[,'PM2.5',3]) + ns(df[,'CO',3])
               + ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[2], cumul=TRUE)
 
 model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) + 
@@ -547,7 +648,18 @@ model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) +
                 ns(df2[,'PM2.5',3])+ ns(df2[,'CO',3])
               + ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
 ### 改动部分
@@ -696,7 +808,18 @@ model1 <- glm(df[,dvar]~ cb1.var1+ns(df[,"平均温度"],3) +
                 ns(df[,'PM2.5',3])+ ns(df[,'CO',3])
               + ns(df[,'NO2',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[2], cumul=TRUE)
 
 model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) + 
@@ -704,7 +827,18 @@ model2 <- glm(df2[,dvar] ~ cb2.var1+ns(df2[,"平均温度"],3) +
                 ns(df2[,'PM2.5',3]) + ns(df2[,'CO',3])
               + ns(df2[,'NO2',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
 ### 改动部分
@@ -792,14 +926,36 @@ model1 <- glm(df[,dvar] ~ cb1.var1 + ns(df[,"风速"],3) +
                 ns(df[,'PM10',3])+ ns(df[,'SO2',3]) + ns(df[,'CO',3])
               + ns(df[,'NO2',3]) + ns(df[,'O3_8h',3]),
               family=quasipoisson(),df)
-summary(model1)
+sum_mod1 <- summary(model1)
+sum_mod1$dispersion
+
+ind <- 15:60
+cases <- df[ind,dvar]
+pre_cases <- unlist(model1$fitted.values)
+city <- "SZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 
 model2 <- glm(df2[,dvar] ~ cb2.var1 + ns(df2[,"风速"],3) + 
                 ns(df2[,'平均温度'],3) + ns(df2[,'PM2.5',3]) + 
                 ns(df2[,'PM10',3])+ ns(df2[,'SO2',3]) + ns(df2[,'CO',3])
               + ns(df2[,'NO2',3]) + ns(df2[,'O3_8h',3]),
               family=quasipoisson(),df2)
-summary(model2)
+sum_mod2 <- summary(model2)
+sum_mod2$dispersion
+
+ind <- 15:60
+cases <- df2[ind,dvar]
+pre_cases <- unlist(model2$fitted.values)
+city <- "WZ"
+variable <- var1
+dat_fit_temp <- data.frame(ind, cases, pre_cases, city, variable)
+dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
+# plot(cases, pre_cases)
+
 ### 改动部分
 pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[5], at=c(qvar[1],qvar[2], 
                                                                qvar[3], qvar[4], qvar[6],qvar[7],qvar[8],qvar[9]), cumul=TRUE)
@@ -865,3 +1021,37 @@ sheets = list("temp"=result_temp,"wind"=result_wind,"pm25"=result_pm25,
               "co"=result_co,"no2"=result_no2,"o3"=result_o3,"wet"=result_wet)
 write.xlsx(sheets,rownames=TRUE,colnames=TRUE,"result6_2.xlsx")
 
+
+##### ------------------ 绘制各个指标拟合情况图 ---------------- #####
+dat_fit_all$city[dat_fit_all$city == "SZ"] <- "深圳市"
+dat_fit_all$city[dat_fit_all$city == "WZ"] <- "温州市"
+dat_fit_all$variable[dat_fit_all$variable == "O3_8h"] <- "O3"
+dat_fit_all$variable[dat_fit_all$variable == "相对湿度.百分比"] <- "相对湿度"
+
+dat_fit_all$city <- factor(dat_fit_all$city, levels = c("深圳市", "温州市"))
+dat_fit_all$variable <- factor(dat_fit_all$variable, levels = c("平均温度", "相对湿度", "风速", "PM2.5", "CO", "NO2", "O3"))
+
+ind_date <- 3:12 * 5
+plot_date <- seq.Date(as.Date("2020/1/1"), by = "day", length.out = 60)[ind_date]
+plot_date <- format(plot_date, "%m/%d")
+dat_fit_all %>%
+  ggplot() +
+  geom_point(aes(x = ind, y = cases, color = "真实新增")) +
+  geom_point(aes(x = ind, y = pre_cases, color = "预测新增")) +
+  scale_x_continuous(breaks = ind_date, labels = plot_date) +
+  theme_light(base_family = "SimSun") +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "top",
+        # panel.border = element_blank(),
+        text = element_text(size = 14),
+        axis.text.x = element_text(angle = 30),
+        strip.background = element_rect(color = "white"),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_color_jco() +
+  # facet_wrap(~ variable + city, ncol = 2) +
+  facet_grid(rows = vars(variable), cols = vars(city)) +
+  labs(x = "日期", y = "每日非输入新增患者人数", 
+       title = NULL,
+       color = "")
+# ggsave("fit_plot.pdf", height = 10, width = 5, device = cairo_pdf)
+ggsave("fit_plot.png", height = 10, width = 8, dpi = 300)
