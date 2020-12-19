@@ -344,7 +344,7 @@ dat_plot %>%
   geom_point(aes(y = mid, color = city), size = 2) +
   facet_grid(xlabel ~ ylabel, scales = "free") +
   scale_x_continuous(breaks = 0:14, labels = 0:14) +
-  theme_bw(base_family = "Times") +
+  theme_bw() +
   theme(strip.background = element_rect(color = "white", fill = "white"),
         panel.grid.minor = element_blank(),
         legend.position = "top",
@@ -353,7 +353,8 @@ dat_plot %>%
   labs(x = "滞后时间（天）", y = "相对危险度（RR）") +
   coord_cartesian(ylim = c(0, 2))
 
-ggsave(plot = last_plot(), filename = 'windscale.png')
+# ggsave(plot = last_plot(), filename = 'windscale.png')
+ggsave("windscale.pdf", device = cairo_pdf, family = "Song")
 
 ### "PM2.5"
 var1 <- "PM2.5"
@@ -601,7 +602,7 @@ dat_plot %>%
   labs(x = "滞后时间（天）", y = "相对危险度（RR）") +
   coord_cartesian(ylim = c(0, 4))
 
-ggsave(plot = last_plot(), filename = 'COscale.png')
+# ggsave(plot = last_plot(), filename = 'COscale.png')
 
 #### 画图 ####
 png(filename = 'picture/szCO.png', width = 1024, height = 768, pointsize = 15)
@@ -1044,7 +1045,7 @@ dat_fit_all %>%
         legend.position = "top",
         # panel.border = element_blank(),
         text = element_text(size = 14),
-        axis.text.x = element_text(angle = 30),
+        axis.text.x = element_text(angle = 20),
         strip.background = element_rect(color = "white"),
         plot.title = element_text(hjust = 0.5)) +
   scale_color_jco() +
@@ -1053,5 +1054,5 @@ dat_fit_all %>%
   labs(x = "日期", y = "每日非输入新增患者人数", 
        title = NULL,
        color = "")
-# ggsave("fit_plot.pdf", height = 10, width = 5, device = cairo_pdf)
-ggsave("fit_plot.png", height = 10, width = 8, dpi = 300)
+ggsave("fit_plot.pdf", height = 10, width = 8, device = cairo_pdf, family = "Song")
+# ggsave("fit_plot.png", height = 10, width = 8, dpi = 300)
