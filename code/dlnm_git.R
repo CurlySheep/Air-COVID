@@ -605,12 +605,12 @@ dat_plot %>%
 # ggsave(plot = last_plot(), filename = 'COscale.png')
 
 #### 画图 ####
-png(filename = 'picture/szCO.png', width = 1024, height = 768, pointsize = 15)
+png(filename = 'Result/szCO.png', width = 1024, height = 768, pointsize = 15)
 plot(pred1.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
      main=city1)
 dev.off()
 
-png(filename = 'picture/wzCO.png', width = 1024, height = 768, pointsize = 15)
+png(filename = 'Result/wzCO.png', width = 1024, height = 768, pointsize = 15)
 plot(pred2.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
      main=city2)
 dev.off()
@@ -784,12 +784,12 @@ dat_plot %>%
 
 
 
-png(filename = 'picture/szNO2.png', width = 1024, height = 768, pointsize = 15)
+png(filename = 'Result/szNO2.png', width = 1024, height = 768, pointsize = 15)
 plot(pred1.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
      main=city1)
 dev.off()
 
-png(filename = 'picture/wzNO2.png', width = 1024, height = 768, pointsize = 15)
+png(filename = 'Result/wzNO2.png', width = 1024, height = 768, pointsize = 15)
 plot(pred2.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
      main=city2)
 dev.off()
@@ -842,11 +842,9 @@ dat_fit_all <- rbind(dat_fit_all, dat_fit_temp)
 
 pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[2], cumul=TRUE)
 
-### 改动部分
-pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[5], at=c(qvar[1],qvar[2], 
-                                                               qvar[3], qvar[4], qvar[6],qvar[7],qvar[8],qvar[9]), cumul=TRUE)
-pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[5], at=c(qvar[1],qvar[2], 
-                                                               qvar[3], qvar[4], qvar[6],qvar[7],qvar[8],qvar[9]), cumul=TRUE)
+### 展示实际情况部分
+pred1.var1 <- crosspred(cb1.var1, model1,  cen = qvar[5], at=c(qvar[2], qvar[3], qvar[4], qvar[6],qvar[7],qvar[8]), cumul=TRUE)
+pred2.var1 <- crosspred(cb2.var1, model2,  cen = qvar[5], at=c(qvar[2], qvar[3], qvar[4], qvar[6],qvar[7],qvar[8]), cumul=TRUE)
 
 fit1 <- t(data.frame(rbind(fit = round(pred1.var1[["matRRfit"]],2),
                            low = round(pred1.var1[["matRRlow"]],2), 
@@ -855,62 +853,54 @@ fit2 <- t(data.frame(rbind(fit = round(pred2.var1[["matRRfit"]],2),
                            low = round(pred2.var1[["matRRlow"]],2), 
                            high = round(pred2.var1[["matRRhigh"]],2))))
 fit <- cbind(fit1[,1],
-             paste0(fit1[,9],"-",fit1[,17]),
+             paste0(fit1[,7],"-",fit1[,13]),
              fit2[,1],
-             paste0(fit2[,9],"-",fit2[,17]),
+             paste0(fit2[,7],"-",fit2[,13]),
              fit1[,2],
-             paste0(fit1[,10],"-",fit1[,18]),
+             paste0(fit1[,8],"-",fit1[,14]),
              fit2[,2],
-             paste0(fit2[,10],"-",fit2[,18]),
+             paste0(fit2[,8],"-",fit2[,14]),
              fit1[,3],
-             paste0(fit1[,11],"-",fit1[,19]),
+             paste0(fit1[,9],"-",fit1[,15]),
              fit2[,3],
-             paste0(fit2[,11],"-",fit2[,19]),
+             paste0(fit2[,9],"-",fit2[,15]),
+             1,
+             1,
              fit1[,4],
-             paste0(fit1[,12],"-",fit1[,20]),
+             paste0(fit1[,10],"-",fit1[,16]),
              fit2[,4],
-             paste0(fit2[,12],"-",fit2[,20]),
-             1,
-             1,
+             paste0(fit2[,10],"-",fit2[,16]),
              fit1[,5],
-             paste0(fit1[,13],"-",fit1[,21]),
+             paste0(fit1[,11],"-",fit1[,17]),
              fit2[,5],
-             paste0(fit2[,13],"-",fit2[,21]),
+             paste0(fit2[,11],"-",fit2[,17]),
              fit1[,6],
-             paste0(fit1[,14],"-",fit1[,22]),
+             paste0(fit1[,12],"-",fit1[,18]),
              fit2[,6],
-             paste0(fit2[,14],"-",fit2[,22]),
-             fit1[,7],
-             paste0(fit1[,15],"-",fit1[,23]),
-             fit2[,7],
-             paste0(fit2[,15],"-",fit2[,23]),
-             fit1[,8],
-             paste0(fit1[,16],"-",fit1[,24]),
-             fit2[,8],
-             paste0(fit2[,16],"-",fit2[,24])
-)
+             paste0(fit2[,12],"-",fit2[,18]))
+
 
 colnames(fit) <- c(substring(colnames(fit1)[1],2),"95%CI",substring(colnames(fit2)[1],2),"95%CI",
                    substring(colnames(fit1)[2],2),"95%CI",substring(colnames(fit2)[2],2),"95%CI",
                    substring(colnames(fit1)[3],2),"95%CI",substring(colnames(fit2)[3],2),"95%CI",
-                   substring(colnames(fit1)[4],2),"95%CI",substring(colnames(fit2)[4],2),"95%CI",
                    round(qvar[5],2),round(qvar[5],2),
+                   substring(colnames(fit1)[4],2),"95%CI",substring(colnames(fit2)[4],2),"95%CI",
                    substring(colnames(fit1)[5],2),"95%CI",substring(colnames(fit2)[5],2),"95%CI",
-                   substring(colnames(fit1)[6],2),"95%CI",substring(colnames(fit2)[6],2),"95%CI",
-                   substring(colnames(fit1)[7],2),"95%CI",substring(colnames(fit2)[7],2),"95%CI",
-                   substring(colnames(fit1)[8],2),"95%CI",substring(colnames(fit2)[8],2),"95%CI")
+                   substring(colnames(fit1)[6],2),"95%CI",substring(colnames(fit2)[6],2),"95%CI")
 rownames(fit) <- 0:14
 result_o3 <- fit
 
 #### 画图 ####
-png(filename = 'picture/szO3.png', width = 1024, height = 768, pointsize = 15)
-plot(pred1.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
-     main=city1)
+# png(filename = 'Result/szO3.png', width = 1024, height = 768, pointsize = 15)
+pdf(file = 'Result/szO3.pdf', family= "GB1")
+plot(pred1.var1, xlab="O3 (8h)", zlab="RR", theta=200, phi=40, lphi=30,
+     main = city1)
 dev.off()
 
-png(filename = 'picture/wzO3.png', width = 1024, height = 768, pointsize = 15)
-plot(pred2.var1, xlab=var1, zlab="RR", theta=200, phi=40, lphi=30,
-     main=city2)
+# png(filename = 'Result/wzO3.png', width = 1024, height = 768, pointsize = 15)
+pdf(file = 'Result/wzO3.pdf', family= "GB1")
+plot(pred2.var1, xlab="O3 (8h)", zlab="RR", theta=200, phi=40, lphi=30,
+     main = city2)
 dev.off()
 
 ### "相对湿度.百分比"
